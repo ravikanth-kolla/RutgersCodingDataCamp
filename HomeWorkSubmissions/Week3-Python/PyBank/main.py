@@ -22,14 +22,7 @@
 # Greatest Decrease in Revenue: Aug-12 ($-652794)
 # =============================================================================
 
-totalMonths = 0
-totalRevenue = 0
-avgRevenueChange = 0
-greatestRevIncDate = "Date1"
-greatestRevIncAmt = 0
-greatestRevDecDate = "Date2"
-greatestRevDecAmt = 0
-totalRevenueChange = 0
+
 
 
 # First we'll import the os module 
@@ -38,32 +31,43 @@ import os
 
 #list of data files that you can add more to if required
 fileList = ["budget_data_1.csv","budget_data_2.csv"]
+
+
 for file in fileList:
+    #reset all the values
+    totalMonths = 0
+    totalRevenue = 0
+    avgRevenueChange = 0
+    greatestRevIncDate = ""
+    greatestRevIncAmt = 0
+    greatestRevDecDate = ""
+    greatestRevDecAmt = 0
+    totalRevenueChange = 0
+    prevRevenue = 0
+    revIncrease = 0
     #assumes data files exist in the directory raw_data which is at the same level
     #as the script
     csvpath = os.path.join("raw_data",file)
     #print(csvpath)
     import csv
     with open(csvpath, newline='') as csvfile:
-        #skip the header row
-        csvfile.readline()
-
+        
         # CSV reader specifies delimiter and variable that holds contents
         csvreader = csv.reader(csvfile, delimiter=',')
-
-        totalMonths = 0
-        totalRevenue = 0
-        prevRevenue = 0
-        greatestRevIncAmt = 0
-        greatestRevDecAmt = 0
+        #skip the header row
+        next(csvreader)
+        
+        
 
         #  Each row is read as a row
         for row in csvreader:
             #print(row)
             totalRevenue = totalRevenue + int(row[1])
             totalMonths = totalMonths +1
-            revIncrease = int(row[1]) - prevRevenue
-            totalRevenueChange = totalRevenueChange + revIncrease
+            #skip the first month for revenue change
+            if totalMonths > 1:
+                revIncrease = int(row[1]) - prevRevenue
+                totalRevenueChange = totalRevenueChange + revIncrease
             prevRevenue =  int(row[1])
             if(revIncrease > greatestRevIncAmt):
                 greatestRevIncAmt = revIncrease
@@ -73,8 +77,8 @@ for file in fileList:
                 greatestRevDecAmt = revIncrease
                 greatestRevDecDate = row[0]
 
-
-    avgRevenueChange = round(totalRevenueChange/totalMonths,2)
+    #When calculating the average revenue change the intervals is one less than total months
+    avgRevenueChange = round(totalRevenueChange/(totalMonths-1),2)
 
    #create and open output file to write resuts to
     outputpath = os.path.join("raw_data",file.split(".")[0] + "_Results.txt")
